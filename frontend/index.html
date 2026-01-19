@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deepfake Detector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>Deepfake Detection</h1>
+        <p class="subtitle">Upload an image to check if it's real or fake</p>
+
+        <label for="imageInput" class="upload-box" id="uploadBox">
+            <span id="uploadText">Click to upload image</span>
+            <input type="file" id="imageInput" accept="image/*" hidden>
+        </label>
+
+        <button onclick="uploadImage()">Analyze Image</button>
+
+        <p id="result"></p>
+    </div>
+</div>
+
+<script>
+const input = document.getElementById("imageInput");
+const uploadText = document.getElementById("uploadText");
+
+input.addEventListener("change", () => {
+    if (input.files.length > 0) {
+        uploadText.innerText = input.files[0].name;
+    }
+});
+
+async function uploadImage() {
+    const resultText = document.getElementById("result");
+
+    if (!input.files.length) {
+        alert("Please select an image");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", input.files[0]);
+
+    resultText.innerText = "Analyzing...";
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        resultText.innerText = "Prediction: " + data.prediction;
+
+    } catch {
+        resultText.innerText = "Backend not running";
+    }
+}
+</script>
+
+</body>
+</html>
