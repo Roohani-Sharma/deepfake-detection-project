@@ -4,13 +4,15 @@ from datetime import datetime
 import cv2
 from PIL import Image
 
+# model prediction function import
+from src.predict import predict_image
 app = FastAPI()
 
 UPLOAD_DIR = "uploads"
 
-# uploads folder agar nahi hai to banao
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
+# uploads folder agar nahi hai to bana do
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 def extract_metadata(file_path):
     # Date & time
@@ -35,20 +37,31 @@ def extract_metadata(file_path):
         "resolution": f"{width}x{height}"
     }
 
+
 @app.get("/")
 def home():
-    return {"message": "Server Running Successfully"}
+    return {"message": "Backend running successfully"}
+
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
+    # 1️ Save file
     file_path = os.path.join(UPLOAD_DIR, file.filename)
 
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
+    # 2️Extract metadata
     metadata = extract_metadata(file_path)
 
+    # 3️ Model prediction (FAKE / REAL)
+    prediction_result = predict_image(file_path)
+
+    # 4️ Final response
     return {
         "filename": file.filename,
-        "metadata": metadata
+        "metadata": metadata,
+        "prediction": {
+            "verdict": prediction_result
+        }
     }
