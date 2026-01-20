@@ -1,7 +1,13 @@
+# fastapi
+# uvicorn
+# pillow
+# opencv-python-headless
+# torch
+# torchvision
+# python-multipart
 fastapi
 uvicorn
-pillow
-opencv-python-headless
-torch
-torchvision
 python-multipart
+fpdf
+pillow
+opencv-python
