@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deepfake Detection</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            padding: 40px;
+        }
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 500px;
+            margin: auto;
+            box-shadow: 0 0 10px #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        img {
+            max-width: 200px;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .fake { color: red; }
+        .real { color: green; }
+    </style>
+</head>
+
+<body>
+<div class="box">
+    <h2>Deepfake Detection</h2>
+
+    <input type="file" id="imageInput"><br><br>
+    <button onclick="uploadImage()">Analyze Image</button>
+
+    <div>
+        <img id="preview" />
+    </div>
+
+    <div class="result" id="result"></div>
+    <div id="confidence"></div>
+    <div id="metadata"></div>
+</div>
+
+<script>
+function uploadImage() {
+    const input = document.getElementById("imageInput");
+    const file = input.files[0];
+
+    if (!file) {
+        alert("Please select an image");
+        return;
+    }
+
+    document.getElementById("preview").src = URL.createObjectURL(file);
+
+    const formData = new FormData();
+    formData.append("file", file);  // must be "file"
+
+    fetch("http://localhost:8000/upload", {
+        method: "POST",
+        mode: "cors",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("SUCCESS:", data);
+
+        const verdict = data.prediction;
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerText = "Prediction: " + verdict;
+        resultDiv.className = verdict === "FAKE" ? "fake" : "real";
+
+        document.getElementById("confidence").innerText =
+            "Confidence: " + (data.confidence * 100).toFixed(1) + "%";
+
+        const meta = data.metadata;
+        document.getElementById("metadata").innerHTML = `
+            <h4>Metadata:</h4>
+            Created: ${meta.created_at}<br>
+            Resolution: ${meta.resolution}<br>
+            Software: ${meta.software}
+        `;
+    })
+    .catch(error => {
+        console.error("REAL ERROR:", error);
+        alert("Error: " + error.message);
+    });
+}
+</script>
+
+</body>
+</html>
