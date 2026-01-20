@@ -67,7 +67,8 @@ function uploadImage() {
     const formData = new FormData();
     formData.append("file", file);  // must be "file"
 
-    fetch("http://localhost:8000/upload", {
+   fetch("https://deepfake-detection-i7j6.onrender.com/upload"
+, {
         method: "POST",
         mode: "cors",
         body: formData
