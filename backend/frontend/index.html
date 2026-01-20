@@ -62,15 +62,14 @@ function uploadImage() {
         return;
     }
 
+    // Preview
     document.getElementById("preview").src = URL.createObjectURL(file);
 
     const formData = new FormData();
-    formData.append("file", file);  // must be "file"
+    formData.append("file", file);
 
-   fetch("https://deepfake-detection-i7j6.onrender.com/upload"
-, {
+    fetch("/upload", {   // 👈 THIS IS THE FIX (relative path)
         method: "POST",
-        mode: "cors",
         body: formData
     })
     .then(response => {
@@ -104,6 +103,7 @@ function uploadImage() {
     });
 }
 </script>
+
 
 </body>
 </html>
